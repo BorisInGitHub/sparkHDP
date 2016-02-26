@@ -14,8 +14,6 @@ import java.util.List;
 public class Test {
     private static final Logger LOGGER = LoggerFactory.getLogger(Test.class);
 
-    private static final String cluster = "vps242352.ovh.net";
-
 
     public static void main(String[] args) {
         LOGGER.info("Démarrage");
@@ -29,11 +27,15 @@ public class Test {
         // Sur le serveur  : /usr/hdp/current/hadoop-yarn-client/etc/hadoop/
         // Copie du jar sparkHDP-1.0-SNAPSHOT-all.jar sur le serveur
         // Lancement sur le serveur : java -cp sparkHDP-1.0-SNAPSHOT-all.jar Test
+
+        // TODO : Actuellement les fichiers yarn-conf sont mis dans les ressources ... pas top top ...
+
+        // $HADOOP_CONF_DIR utiliser dans yarn-site.xml
         System.setProperty("HADOOP_CONF_DIR", "/usr/hdp/current/hadoop-yarn-client/etc/hadoop/");
 
         try (JavaSparkContext javaSparkContext = modeHDP()) {
-            LOGGER.info("UI on http://{}:4040", cluster);
-            LOGGER.info("UI on http://{}:18080", cluster);
+            LOGGER.info("UI on http://CLUSTER:4040");
+            LOGGER.info("UI on http://CLUSTER:18080");
             List<String> data = Arrays.asList("a", "b", "c", "d");
 
             //val file = sc.textFile("hdfs://vagrant-ubuntu-trusty-64:8020/user/spark/aggrego/test.csv")
@@ -55,6 +57,15 @@ public class Test {
         sparkConf.setAppName("Aggrego Test")
                 .setMaster("yarn-client")
 
+                // Il essaye de se connecter à moi pour me donner la réponse ... mais je ne suis pas sur le même réseau !!!
+//                .set("spark.driver.host", "localhost")
+//                .set("spark.driver.port", "39580")
+//                .set("spark.fileserver.port", "39581")
+
+                // spark.repl.class.uri,http://192.168.2.133:60639)
+                // spark.fileserver.uri,http://192.168.2.133:38494)
+
+
                 .set("spark.executor.memory", "512M")
                 .set("spark.yarn.maxAppAttempts", "2")
 
@@ -72,9 +83,6 @@ public class Test {
 
         SparkContext sparkContext = new SparkContext(sparkConf);
         return new JavaSparkContext(sparkContext);
-
-        // Il essaye de se connecter à moi pour me donner la réponse ... mais je ne suis pas sur le même réseau !!!
-        //SPARK_LOCAL_IP
     }
 
 
