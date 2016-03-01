@@ -21,8 +21,8 @@ public class Test {
         // Configuration du user SPARK
         System.setProperty("HADOOP_USER_NAME", "spark"); // Or Add VM option : -DHADOOP_USER_NAME=spark
 
-
-        //System.setProperty("HADOOP_CONF_DIR", "/home/breynard/IdeaProjects/sparkHDP/src/main/resources");
+//        System.clearProperty("HADOOP_CONF_DIR");
+//        System.setProperty("YARN_CONF_DIR", "/home/breynard/IdeaProjects/sparkHDP/src/main/yarn-conf/");
 
         // Sur le serveur  : /usr/hdp/current/hadoop-yarn-client/etc/hadoop/
         // Copie du jar sparkHDP-1.0-SNAPSHOT-all.jar sur le serveur
@@ -34,7 +34,7 @@ public class Test {
         System.setProperty("HADOOP_CONF_DIR", "/usr/hdp/current/hadoop-yarn-client/etc/hadoop/");
 
         try (JavaSparkContext javaSparkContext = modeHDP()) {
-            LOGGER.info("UI on http://CLUSTER:4040");
+            LOGGER.info("UI on http://192.168.1.16:4040");
             LOGGER.info("UI on http://CLUSTER:18080");
             List<String> data = Arrays.asList("a", "b", "c", "d");
 
@@ -57,10 +57,11 @@ public class Test {
         sparkConf.setAppName("Aggrego Test")
                 .setMaster("yarn-client")
 
+                .set("spark.local.ip","127.0.0.1") // helps when multiple network interfaces are present. The driver must be in the same network as the master and slaves
                 // Il essaye de se connecter à moi pour me donner la réponse ... mais je ne suis pas sur le même réseau !!!
-//                .set("spark.driver.host", "localhost")
-//                .set("spark.driver.port", "39580")
-//                .set("spark.fileserver.port", "39581")
+                .set("spark.driver.host", "127.0.0.1")
+                .set("spark.driver.port", "43470")
+//                .set("spark.fileserver.port", "33466")
 
                 // spark.repl.class.uri,http://192.168.2.133:60639)
                 // spark.fileserver.uri,http://192.168.2.133:38494)
@@ -71,7 +72,7 @@ public class Test {
 
 
                 .set("spark.driver.log.level", "INFO")
-                .set("spark.eventLog.dir", "hdfs:///user/spark/")
+                .set("spark.eventLog.dir", "hdfs:///user/spark")// TODO : Mettre dans un sous répertoire : hdfs:///user/spark/eventLog par exemple.
                 .set("spark.eventLog.enabled", "true")
 
                 //# sudo -u spark hdfs dfs -mkdir -p /user/spark
